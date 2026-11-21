@@ -55,7 +55,7 @@ void movePlayer(Player *player)
         (*player).x=(*player).x-5;
 
     if (IsKeyDown((*player).right)==true)
-        (*player).x=(*player).x-5;
+        (*player).x=(*player).x+5;
 
     if ((*player).x<0)
         (*player).x=0;
@@ -94,7 +94,7 @@ void updateBullets(Player *shooter, Player *target, int direction)
     {
         if ((*shooter).bullets[i].inUse)
         {
-            (*shooter).bullets[i].x=((*shooter).bullets[i].x + 5)*direction;
+            (*shooter).bullets[i].x=(*shooter).bullets[i].x + (5*direction);
 
             if ((*shooter).bullets[i].x < (*target).x + 40 && (*shooter).bullets[i].x + 12 > (*target).x &&
                 (*shooter).bullets[i].y < (*target).y + 40 && (*shooter).bullets[i].y + 6 > (*target).y)
@@ -128,9 +128,9 @@ void resetRound(Player *player1, Player *player2)
     int i;
 
     (*player1).x=230;
-    (*player1).y=250;
-    (*player2).x=230;
-    (*player2).y=250;
+    (*player1).y=480;
+    (*player2).x=730;
+    (*player2).y=480;
 
     (*player1).health=playerHealth;
     (*player2).health=playerHealth;
