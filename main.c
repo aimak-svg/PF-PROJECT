@@ -2,7 +2,7 @@
 
 #define screenWidth 1000
 #define screenHeight 1000
-#define bulletsMax 10
+#define bulletsMax 30
 #define playerHealth 100
 #define scoreToWin 3
 #define menu 0
@@ -96,15 +96,15 @@ void updateBullets(Player *shooter, Player *target, int direction)
         {
             (*shooter).bullets[i].x=(*shooter).bullets[i].x + (5*direction);
 
-            if ((*shooter).bullets[i].x < (*target).x + 40 && (*shooter).bullets[i].x + 12 > (*target).x &&
-                (*shooter).bullets[i].y < (*target).y + 40 && (*shooter).bullets[i].y + 6 > (*target).y)
+            if ((*shooter).bullets[i].x < (*target).x + 40 && (*shooter).bullets[i].x + 10 > (*target).x &&
+                (*shooter).bullets[i].y < (*target).y + 40 && (*shooter).bullets[i].y + 5 > (*target).y)
             {
                 (*target).health= (*target).health-10;
                 (*shooter).bullets[i].inUse=false;
             }
+            else if ((*shooter).bullets[i].x<0 || (*shooter).bullets[i].x>screenWidth)
+                (*shooter).bullets[i].inUse=false;
         }
-        else if ((*shooter).bullets[i].x<0 || (*shooter).bullets[i].x>screenWidth)
-            (*shooter).bullets[i].inUse=false;
     }
 }
 
@@ -121,7 +121,7 @@ void drawBullets(Player player)
     for (i=0; i<bulletsMax; i++)
     {
         if (player.bullets[i].inUse==true)
-            DrawRectangle((int)player.bullets[i].x, (int)player.bullets[i].y, 12, 6, BLACK);
+            DrawRectangle((int)player.bullets[i].x, (int)player.bullets[i].y, 10, 5, BLACK);
     }
 }
 
@@ -147,9 +147,9 @@ void resetRound(Player *player1, Player *player2)
 void drawMenu()
 {
     DrawText("BATTLE ARENA", 330, 120, 40, DARKBLUE);
-    DrawText("Two Player Battle", 345, 190, 24, DARKGRAY);
-    DrawText("Player 1: W A Z S to move, D to shoot", 220, 280, 20, BLUE);
-    DrawText("Player 2: Arrow keys to move, ENTER to shoot", 190, 320, 20, RED);
+    DrawText("Two Player Battle", 380, 190, 24, DARKGRAY);
+    DrawText("Player 1: W A Z S to move, D to shoot", 280, 280, 20, BLUE);
+    DrawText("Player 2: Arrow keys to move, ENTER to shoot", 280, 320, 20, RED);
     DrawText("Press ENTER to start", 330, 420, 24, BLACK);
 }
 
@@ -162,7 +162,7 @@ void drawGame(Player player1, Player player2, int screen, int winner)
     {
         DrawText("BATTLE ARENA", 370, 15, 25, DARKGRAY);
         DrawText(TextFormat("Player 1: %d", player1.score), 40, 20, 20, BLUE);
-        DrawText(TextFormat("Player 2: %d", player2.score), 740, 20, 20, RED);
+        DrawText(TextFormat("Player 2: %d", player2.score), 790, 20, 20, RED);
         DrawText("ESC: Back to menu", 350, 570, 18, BLACK);
 
         drawPlayer(player1);
@@ -199,8 +199,6 @@ int main()
             if (IsKeyPressed(KEY_ENTER)==true)
             {
                 resetRound(&player1, &player2);
-                player1.health=playerHealth;
-                player2.health=playerHealth;
                 player1.score=0;
                 player2.score=0;
                 screen=playing;
