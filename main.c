@@ -154,7 +154,7 @@ void drawMenu()
 void drawGame(Player player1, Player player2, int screen, int winner)
 {
     if (screen==menu)
-        DrawMenu();
+        drawMenu();
 
     else if (screen==playing)
     {
@@ -163,10 +163,10 @@ void drawGame(Player player1, Player player2, int screen, int winner)
         DrawText(TextFormat("Player 2: %d", player2.score), 740, 20, 20, RED);
         DrawText("ESC: Back to menu", 350, 570, 18, BLACK);
 
-        DrawPlayer(player1);
-        DrawPlayer(player2);
-        DrawBullets(player1);
-        DrawBullets(player2);
+        drawPlayer(player1);
+        drawPlayer(player2);
+        drawBullets(player1);
+        drawBullets(player2);
     }
     else if (screen==gameOver)
     {
@@ -219,8 +219,8 @@ int main()
                 if (IsKeyDown(player2.shoot)==true)
                     shoot(&player2);
 
-                UpdateBullets(&player1, &player2, 1);
-                UpdateBullets(&player2, &player1, -1);
+                updateBullets(&player1, &player2, 1);
+                updateBullets(&player2, &player1, -1);
 
                 if (player1.health <= 0)
                 {
@@ -245,7 +245,7 @@ int main()
                         screen=gameOver;
                     }
                     else
-                        ResetRound(&player1, &player2);
+                        resetRound(&player1, &player2);
 
                 }
             }
