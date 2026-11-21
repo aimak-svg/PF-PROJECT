@@ -2,177 +2,154 @@
 
 #define screenWidth 1000
 #define screenHeight 1000
-#define maxBullets 10
+#define bulletsMax 10
 #define playerHealth 100
 #define scoreToWin 3
-#define playerWidth 30
-#define playerHeight 30
-
 #define menu 0
 #define playing 1
 #define gameOver 2
 
-float player1_x, player1_y, player2_x, player2_y;
-int player1Health, player2Health, player1Score, player2Score, player1Up, player1Down, player1Left, player1Right, player1Shoot;
-int player2Up, player2Down, player2Left, player2Right, player2Shoot, player1ShootDelay, player2ShootDelay;
-Color player1Color, player2Color;
-
-float player1BulletX[maxBullets], player2BulletX[maxBullets], player1BulletY[maxBullets], player2BulletY[maxBullets];
-bool player1BulletActive[maxBullets], player2BulletActive[maxBullets];
-
-void ResetPlayer(float *x, float *y, int *health, Color *color, int *up, int *down, int *left, int *right, int *shoot, 
-    int *shootDelay, float startX, Color playerColor, int keyUp, int keyDown, int keyLeft, int keyRight, int keyShoot)
+typedef struct
 {
-    *x=startX;
-    *y=200;
-    *health=playerHealth;
-    *color=playerColor;
-    *up=keyUp;
-    *down=keyDown;
-    *left=keyLeft;
-    *right=keyRight;
-    *shoot=keyShoot;
-    *shootDelay=0;
+    float x, y;
+    bool inUse;
+} bullet;
+
+typedef struct
+{
+    float x, y;
+    int health, score, up, down, left, right, shoot;
+    Color color;
+    bullet bullets[bulletsMax];
+} Player;
+
+void ResetPlayer(Player *player, float x, Color color, int up, int down, int left, int right, int shoot)
+{
+    int i;
+
+    (*player).x=x;
+    (*player).y=480;
+    (*player).health=playerHealth;
+    (*player).color=color;
+    (*player).up=up;
+    (*player).down=down;
+    (*player).left=left;
+    (*player).right=right;
+    (*player).shoot=shoot;
+
+    for (i=0; i<bulletsMax; i++)
+    {
+        (*player).bullets[i].inUse=false;
+    }
 }
 
-void MovePlayer(float *x, float *y, int up, int down, int left, int right)
+void MovePlayer(Player *player)
 {
-    if (IsKeyDown(up))
-        *y=*y-5;
+    if (IsKeyDown((*player).up))
+        (*player).y=(*player).y-5;
 
-    if (IsKeyDown(down))
-        *y=*y+5;
+    if (IsKeyDown((*player).down))
+        (*player).y=(*player).y+5;
 
-    if (IsKeyDown(left))
-        *x=*x-5;
+    if (IsKeyDown((*player).left))
+        (*player).x=(*player).x-5;
 
-    if (IsKeyDown(right))
-        *x=*x+5;
+    if (IsKeyDown((*player).right))
+        (*player).x=(*player).x-5;
 
-    if (*x<0)
-        *x=0;
+    if ((*player).x<0)
+        (*player).x=0;
 
-    if (*x>screenWidth-playerWidth)
-        *x=screenWidth-playerWidth;
+    if ((*player).x > screenWidth-40)
+        (*player).x = screenWidth-40;
 
-    if (*y<0)
-        *y=0;
+    if ((*player).y<60)
+        (*player).y=60;
 
-    if (*y>screenHeight-playerHeight)
-        *y=screenHeight-playerHeight;
+    if ((*player).y > screenHeight-40)
+        (*player).y = screenHeight-40;
 }
 
 void Shoot(Player *player)
 {
     int i;
 
-    for (i = 0; i < MAX_BULLETS; i++)
+    for (i=0; i<bulletsMax; i++)
     {
-        if (player->bullets[i].active == false)
+        if ((*player).bullets[i].inUse == false)
         {
-            player->bullets[i].x = player->x + 15;
-            player->bullets[i].y = player->y + 15;
-            player->bullets[i].active = true;
-            player->shootDelay = 20;
+            (*player).bullets[i].x = (*player).x+40;
+            (*player).bullets[i].y = (*player).y+20;
+            (*player).bullets[i].inUse=true;
             break;
         }
     }
-
 }
 
-/* Moves bullets and checks whether they hit the other player. */
 void UpdateBullets(Player *shooter, Player *target, int direction)
 {
     int i;
-    Rectangle targetBox = {target->x, target->y, 40, 40};
 
-    for (i = 0; i < MAX_BULLETS; i++)
+    for (i=0; i<bulletsMax; i++)
     {
-        if (shooter->bullets[i].active)
+        if ((*shooter).bullets[i].inUse)
         {
-            shooter->bullets[i].x += 8 * direction;
+            (*shooter).bullets[i].x=((*shooter).bullets[i].x + 5)*direction;
 
-            Rectangle bulletBox = {
-                shooter->bullets[i].x,
-                shooter->bullets[i].y,
-                12,
-                6
-            };
-
-            if (CheckCollisionRecs(bulletBox, targetBox))
+            if ((*shooter).bullets[i].x < (*target).x + 40 && (*shooter).bullets[i].x + 12 > (*target).x &&
+                (*shooter).bullets[i].y < (*target).y + 40 && (*shooter).bullets[i].y + 6 > (*target).y)
             {
-                target->health -= 10;
-                shooter->bullets[i].active = false;
-            }
-
-            if (shooter->bullets[i].x < 0 ||
-                shooter->bullets[i].x > SCREEN_WIDTH)
-            {
-                shooter->bullets[i].active = false;
+                (*target).health= (*target).health-10;
+                (*shooter).bullets[i].inUse=false;
             }
         }
     }
 }
 
-/* Draws one player and its health bar. */
 void DrawPlayer(Player player)
 {
     DrawRectangle((int)player.x, (int)player.y, 40, 40, player.color);
-    DrawRectangle((int)player.x, (int)player.y - 12,
-                  player.health * 40 / PLAYER_HEALTH, 6, GREEN);
-    DrawRectangleLines((int)player.x, (int)player.y - 12,
-                       40, 6, BLACK);
+    DrawRectangle((int)player.x, (int)player.y-10, player.health*40/playerHealth, 6, GREEN);
 }
 
-/* Draws all active bullets stored in the player's array. */
 void DrawBullets(Player player)
 {
     int i;
 
-    for (i = 0; i < MAX_BULLETS; i++)
+    for (i=0; i<bulletsMax; i++)
     {
-        if (player.bullets[i].active)
-        {
-            DrawRectangle((int)player.bullets[i].x,
-                          (int)player.bullets[i].y,
-                          12, 6, BLACK);
-        }
+        if (player.bullets[i].inUse==true)
+            DrawRectangle((int)player.bullets[i].x, (int)player.bullets[i].y, 12, 6, BLACK);
     }
 }
 
-/* Starts the next round without changing the scores. */
 void ResetRound(Player *player1, Player *player2)
 {
     int i;
 
-    player1->x = 100;
-    player1->y = 270;
-    player2->x = 750;
-    player2->y = 270;
+    (*player1).x=230;
+    (*player1).y=250;
+    (*player2).x=230;
+    (*player2).y=250;
 
-    player1->health = PLAYER_HEALTH;
-    player2->health = PLAYER_HEALTH;
-    player1->shootDelay = 0;
-    player2->shootDelay = 0;
+    (*player1).health=playerHealth;
+    (*player2).health=playerHealth;
 
-    for (i = 0; i < MAX_BULLETS; i++)
+    for (i=0; i<bulletsMax; i++)
     {
-        player1->bullets[i].active = false;
-        player2->bullets[i].active = false;
+        (*player1).bullets[i].inUse=false;
+        (*player2).bullets[i].inUse=false;
     }
 }
 
-/* Shows the starting menu. */
-void DrawMenu(void)
+void DrawMenu()
 {
-    DrawText("ARENA DUEL", 330, 120, 40, DARKBLUE);
+    DrawText("BATTLE ARENA", 330, 120, 40, DARKBLUE);
     DrawText("Two Player Battle", 345, 190, 24, DARKGRAY);
-    DrawText("Player 1: W A S D to move, F to shoot", 220, 280, 20, BLUE);
+    DrawText("Player 1: W A Z S to move, D to shoot", 220, 280, 20, BLUE);
     DrawText("Player 2: Arrow keys to move, ENTER to shoot", 190, 320, 20, RED);
     DrawText("Press ENTER to start", 330, 420, 24, BLACK);
 }
-
-/* Draws the correct screen and game information. */
 void DrawGame(Player player1, Player player2, int screen, int winner)
 {
     if (screen == menu)
