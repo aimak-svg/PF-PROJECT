@@ -92,7 +92,7 @@ void updateBullets(Player *shooter, Player *target, int direction)
 
     for (i=0; i<bulletsMax; i++)
     {
-        if ((*shooter).bullets[i].inUse)
+        if ((*shooter).bullets[i].inUse==true)
         {
             (*shooter).bullets[i].x=(*shooter).bullets[i].x + (5*direction);
 
