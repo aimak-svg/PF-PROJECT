@@ -23,7 +23,7 @@ typedef struct
     bullet bullets[bulletsMax];
 } Player;
 
-void ResetPlayer(Player *player, float x, Color color, int up, int down, int left, int right, int shoot)
+void resetPlayer(Player *player, float x, Color color, int up, int down, int left, int right, int shoot)
 {
     int i;
 
@@ -43,18 +43,18 @@ void ResetPlayer(Player *player, float x, Color color, int up, int down, int lef
     }
 }
 
-void MovePlayer(Player *player)
+void movePlayer(Player *player)
 {
-    if (IsKeyDown((*player).up))
+    if (IsKeyDown((*player).up)==true)
         (*player).y=(*player).y-5;
 
-    if (IsKeyDown((*player).down))
+    if (IsKeyDown((*player).down)==true)
         (*player).y=(*player).y+5;
 
-    if (IsKeyDown((*player).left))
+    if (IsKeyDown((*player).left)==true)
         (*player).x=(*player).x-5;
 
-    if (IsKeyDown((*player).right))
+    if (IsKeyDown((*player).right)==true)
         (*player).x=(*player).x-5;
 
     if ((*player).x<0)
@@ -70,7 +70,7 @@ void MovePlayer(Player *player)
         (*player).y = screenHeight-40;
 }
 
-void Shoot(Player *player)
+void shoot(Player *player)
 {
     int i;
 
@@ -86,7 +86,7 @@ void Shoot(Player *player)
     }
 }
 
-void UpdateBullets(Player *shooter, Player *target, int direction)
+void pudateBullets(Player *shooter, Player *target, int direction)
 {
     int i;
 
@@ -106,13 +106,13 @@ void UpdateBullets(Player *shooter, Player *target, int direction)
     }
 }
 
-void DrawPlayer(Player player)
+void drawPlayer(Player player)
 {
     DrawRectangle((int)player.x, (int)player.y, 40, 40, player.color);
     DrawRectangle((int)player.x, (int)player.y-10, player.health*40/playerHealth, 6, GREEN);
 }
 
-void DrawBullets(Player player)
+void drawBullets(Player player)
 {
     int i;
 
@@ -123,7 +123,7 @@ void DrawBullets(Player player)
     }
 }
 
-void ResetRound(Player *player1, Player *player2)
+void resetRound(Player *player1, Player *player2)
 {
     int i;
 
@@ -142,7 +142,7 @@ void ResetRound(Player *player1, Player *player2)
     }
 }
 
-void DrawMenu()
+void drawMenu()
 {
     DrawText("BATTLE ARENA", 330, 120, 40, DARKBLUE);
     DrawText("Two Player Battle", 345, 190, 24, DARKGRAY);
@@ -150,60 +150,55 @@ void DrawMenu()
     DrawText("Player 2: Arrow keys to move, ENTER to shoot", 190, 320, 20, RED);
     DrawText("Press ENTER to start", 330, 420, 24, BLACK);
 }
-void DrawGame(Player player1, Player player2, int screen, int winner)
+
+void drawGame(Player player1, Player player2, int screen, int winner)
 {
-    if (screen == menu)
-    {
+    if (screen==menu)
         DrawMenu();
-    }
-    else if (screen == PLAYING)
+
+    else if (screen==playing)
     {
-        DrawText("ARENA DUEL", 370, 15, 25, DARKGRAY);
+        DrawText("BATTLE ARENA", 370, 15, 25, DARKGRAY);
         DrawText(TextFormat("Player 1: %d", player1.score), 40, 20, 20, BLUE);
         DrawText(TextFormat("Player 2: %d", player2.score), 740, 20, 20, RED);
-        DrawText("ESC: Back to menu", 350, 570, 18, GRAY);
+        DrawText("ESC: Back to menu", 350, 570, 18, BLACK);
 
         DrawPlayer(player1);
         DrawPlayer(player2);
         DrawBullets(player1);
         DrawBullets(player2);
     }
-    else if (screen == gameOver)
+    else if (screen==gameOver)
     {
-        if (winner == 1)
+        if (winner==1)
             DrawText("PLAYER 1 WINS!", 300, 200, 40, BLUE);
         else
             DrawText("PLAYER 2 WINS!", 300, 200, 40, RED);
 
-        DrawText("Press ENTER to return to menu", 235, 300, 24, DARKGRAY);
+        DrawText("Press ENTER to return to menu", 235, 300, 24, BLACK);
     }
 }
 
-
 int main()
 {
-    Player player1;
-    Player player2;
-    int screen=menu;
-    int winner=0;
+    Player player1, player2;
+    int screen=menu, winner=0;
 
-    window(screenWidth, screenHeight, "BATTLE ARENA");
-    FPS(60);
+    InitWindow(screenWidth, screenHeight, "BATTLE ARENA");
+    SetTargetFPS(60);
 
-    ResetPlayer(&player1, 150, PINK, KEY_W, KEY_Z, KEY_A, KEY_S, KEY_D);
-    ResetPlayer(&player2, 850, GREEN, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER);
+    resetPlayer(&player1, 230, BLUE, KEY_W, KEY_Z, KEY_A, KEY_S, KEY_D);
+    resetPlayer(&player2, 730, RED, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_ENTER);
 
-    bool runGame=true;
-
-    while (runGame==true)
+    while (WindowShouldClose()==false)
     {
         if (screen==menu)
         {
-            if (IsKeyPressed(KEY_ENTER))
+            if (IsKeyPressed(KEY_ENTER)==true)
             {
-                ResetRound(&player1, &player2);
-                player1.remainingHealth=playerHealth;
-                player2.remainingHealth=playerHealth;
+                resetRound(&player1, &player2);
+                player1.health=playerHealth;
+                player2.health=playerHealth;
                 player1.score=0;
                 player2.score=0;
                 screen=playing;
@@ -211,87 +206,69 @@ int main()
         }
         else if (screen==playing)
         {
-            if (IsKeyPressed(KEY_ESCAPE))
-            {
+            if (IsKeyPressed(KEY_ESCAPE)==true)
                 screen=menu;
-            }
             else
             {
-                MovePlayer(&player1);
-                MovePlayer(&player2);
+                movePlayer(&player1);
+                movePlayer(&player2);
 
-                if (player1.shootDelay > 0)
-                    player1.shootDelay--;
+                if (IsKeyDown(player1.shoot)==true)
+                    shoot(&player1);
 
-                if (player2.shootDelay > 0)
-                    player2.shootDelay--;
-
-                if (IsKeyDown(player1.shoot) &&
-                    player1.shootDelay == 0)
-                {
-                    Shoot(&player1);
-                }
-
-                if (IsKeyDown(player2.shoot) &&
-                    player2.shootDelay == 0)
-                {
-                    Shoot(&player2);
-                }
+                if (IsKeyDown(player2.shoot)==true)
+                    shoot(&player2);
 
                 UpdateBullets(&player1, &player2, 1);
                 UpdateBullets(&player2, &player1, -1);
 
-                if (player1.remainingHealth <= 0)
+                if (player1.health <= 0)
                 {
                     player2.score++;
 
-                    if (player2.score == scoreToWin)
+                    if (player2.score==scoreToWin)
                     {
-                        winner = 2;
-                        screen = gameOver;
+                        winner=2;
+                        screen=gameOver;
                     }
                     else
-                    {
-                        ResetRound(&player1, &player2);
-                    }
-                }
+                        resetRound(&player1, &player2);
 
-                if (player2.remainingHealth <= 0)
+                }
+                else if (player2.health <= 0)
                 {
                     player1.score++;
 
-                    if (player1.score == scoreToWin)
+                    if (player1.score==scoreToWin)
                     {
-                        winner = 1;
-                        screen = gameOver;
+                        winner=1;
+                        screen=gameOver;
                     }
                     else
-                    {
                         ResetRound(&player1, &player2);
-                    }
+
                 }
             }
         }
-        else if (screen == gameOver)
+        else if (screen==gameOver)
         {
-            if (IsKeyPressed(KEY_ENTER))
+            if (IsKeyPressed(KEY_ENTER)==true)
             {
-                player1.score = 0;
-                player2.score = 0;
-                player1.remainingHealth = playerHealth;
-                player2.remainingHealth = playerHealth;
-                winner = 0;
-                screen = menu;
+                player1.score=0;
+                player2.score=0;
+                player1.health=playerHealth;
+                player2.health=playerHealth;
+                winner=0;
+                screen=menu;
             }
         }
 
         BeginDrawing();
-        ClearBackground(RAYWHITE);
-        DrawGame(player1, player2, screen, winner);
+        ClearBackground(BEIGE);
+        drawGame(player1, player2, screen, winner);
         EndDrawing();
     }
-
     CloseWindow();
+
     return 0;
 }
-
