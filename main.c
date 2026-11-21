@@ -86,7 +86,7 @@ void shoot(Player *player)
     }
 }
 
-void pudateBullets(Player *shooter, Player *target, int direction)
+void updateBullets(Player *shooter, Player *target, int direction)
 {
     int i;
 
