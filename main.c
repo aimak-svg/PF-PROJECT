@@ -103,6 +103,8 @@ void updateBullets(Player *shooter, Player *target, int direction)
                 (*shooter).bullets[i].inUse=false;
             }
         }
+        else if ((*shooter).bullets[i].x<0 || (*shooter).bullets[i].x>screenWidth)
+            (*shooter).bullets[i].inUse=false;
     }
 }
 
