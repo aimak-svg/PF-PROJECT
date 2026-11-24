@@ -163,7 +163,7 @@ void drawGame(Player player1, Player player2, int screen, int winner)
         DrawText("BATTLE ARENA", 370, 15, 25, DARKGRAY);
         DrawText(TextFormat("Player 1: %d", player1.score), 40, 20, 20, BLUE);
         DrawText(TextFormat("Player 2: %d", player2.score), 790, 20, 20, RED);
-        DrawText("ESC: Back to menu", 350, 570, 18, BLACK);
+        DrawText("ESC: Closes the Game", 350, 570, 18, BLACK);
 
         drawPlayer(player1);
         drawPlayer(player2);
